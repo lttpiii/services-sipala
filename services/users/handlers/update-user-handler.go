@@ -11,6 +11,16 @@ import (
 func (h *UsersHandler) UpdateUserHandler(c *gin.Context) {
 	log.Printf("[update user] hit sarvice update user with request %v", c.Request)
 
+	role := c.GetString("role")
+	if role != "admin" && role != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "invalid role",
+			"code": http.StatusForbidden,
+			"error": "required role atleast staff",
+		})
+		return
+	}
+
 	var parsedBody types.DTOUpdateUser
 	if err := c.ShouldBindJSON(&parsedBody); err != nil {
 		log.Printf("[update user] failed to unmarshal: %v", err)
@@ -22,7 +32,7 @@ func (h *UsersHandler) UpdateUserHandler(c *gin.Context) {
 		return
 	}
 
-	userID  := c.Param("user_id")
+	userID  := c.Param("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "missing id user",

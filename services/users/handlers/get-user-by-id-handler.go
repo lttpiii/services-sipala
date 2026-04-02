@@ -8,15 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *UsersHandler) DeleteUserHandler(c *gin.Context) {
-	log.Printf("[delete user] hit sarvice delete user with request %v", c.Request)
+func (h *UsersHandler) GetUserByIDHandler(c *gin.Context) {
+	log.Printf("[get user by id] hit sarvice get user by id with request %v", c.Request)
 
 	role := c.GetString("role")
-	if role != "admin" {
+	if role != "admin" && role != "staff" {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "invalid role",
 			"code": http.StatusForbidden,
-			"error": "required role atleast admin",
+			"error": "required role atleast staff",
 		})
 		return
 	}
@@ -31,9 +31,10 @@ func (h *UsersHandler) DeleteUserHandler(c *gin.Context) {
 		return
 	}
 
-	log.Println("[delete user] running controller")
-	result, err := h.controller.DeleteUser(c.Request.Context(), &types.ReqDeleteUser{
+	log.Println("[get user by id] running controller")
+	result, err := h.controller.GetUserByID(c.Request.Context(), &types.ReqGetUserByID{
 		UserID: userID,
+		IncludeDeleted: c.Query("include_deleted") == "true",
 	})
 
 	if err != nil {
@@ -46,9 +47,9 @@ func (h *UsersHandler) DeleteUserHandler(c *gin.Context) {
 		return
 	}
 
-	log.Println("[delete user] service delete user success")
+	log.Println("[get user by id] service get user by id success")
 	c.JSON(http.StatusOK, gin.H{
-		"message": "delete user successful",
+		"message": "get user by id successful",
 		"code": http.StatusOK,
 		"result": result,
 	})
