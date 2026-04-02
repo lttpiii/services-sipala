@@ -11,6 +11,17 @@ import (
 func (h *UsersHandler) CreateUserHandler(c *gin.Context) {
 	log.Printf("[create user] hit sarvice create user with request %v", c.Request)
 
+	role := c.GetString("role")
+	if role != "admin" && role != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "invalid role",
+			"code": http.StatusForbidden,
+			"error": "required role atleast staff",
+		})
+		return
+	}
+
+
 	var parsedBody types.DTOCreateUser
 	if err := c.ShouldBindJSON(&parsedBody); err != nil {
 		log.Printf("[create user] failed to unmarshal: %v", err)
