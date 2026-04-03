@@ -12,5 +12,8 @@ func New(
 	h *handlers.MonitoringHandler,
 	u utilities.IUtility,
 ) {
-	g := r.Group("/monitoring")
+	g := r.Group("/monitoring", u.AuthMiddleware())
+
+	g.GET("/v1/active-borrows", h.GetActiveBorrowsHandler)
+	g.GET("/v1/overdue-borrows", h.GetOverdueBorrowsHandler)
 }
