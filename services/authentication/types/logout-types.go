@@ -11,5 +11,5 @@ type (
 		RefreshToken string
 	}
 
-	ResLogout UserType
+	ResLogout struct{}
 )

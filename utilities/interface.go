@@ -15,6 +15,7 @@ type (
 
 		// Error Handling
 		ParseError(err error) (string, int, string)
+		ParseMySQLError(err error) *HTTPError
 
 		// Hash
 		CompareStringWithHash(plain, hash string) bool

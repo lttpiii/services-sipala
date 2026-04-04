@@ -262,6 +262,33 @@ BEGIN
 END//
 DELIMITER ;
 
+-- REFRESH TOKENS
+
+CREATE TABLE refresh_tokens (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    user_id CHAR(36),
+    token TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at TIMESTAMP NULL DEFAULT NULL,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_revoked_at (revoked_at),
+) ENGINE=InnoDB;
+
+-- Trigger untuk UUID
+DELIMITER //
+CREATE TRIGGER before_insert_tokens
+BEFORE INSERT ON refresh_tokens
+FOR EACH ROW
+BEGIN
+    IF NEW.id IS NULL THEN
+        SET NEW.id = UUID();
+    END IF;
+END//
+DELIMITER ;
+
 -- ============================================
 -- 🔥 Views untuk Mempermudah Query
 -- ============================================
