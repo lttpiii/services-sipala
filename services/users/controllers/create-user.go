@@ -18,10 +18,6 @@ func (c *controller) CreateUser(ctx context.Context, req *types.ReqCreateUser) (
 		return nil, fmt.Errorf("invalid request: invalid password format")
 	}
 
-	if strings.Contains(req.Name, " ") {
-		return nil, fmt.Errorf("invalid request: format name not valid")
-	}
-
 	tx, err := db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return nil, err
