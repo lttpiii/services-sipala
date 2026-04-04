@@ -21,6 +21,7 @@ func (h *UsersHandler) CreateUserHandler(c *gin.Context) {
 		return
 	}
 
+	userID := c.GetString("user_id")
 
 	var parsedBody types.DTOCreateUser
 	if err := c.ShouldBindJSON(&parsedBody); err != nil {
@@ -33,8 +34,13 @@ func (h *UsersHandler) CreateUserHandler(c *gin.Context) {
 		return
 	}
 
+	if parsedBody.Role == "" {
+		parsedBody.Role = "borrower"
+	}
+
 	log.Println("[create user] running controller")
 	result, err := h.controller.CreateUser(c.Request.Context(), &types.ReqCreateUser{
+		UserID: userID,
 		Name: parsedBody.Name,
 		Email: parsedBody.Email,
 		Password: parsedBody.Password,
@@ -42,6 +48,17 @@ func (h *UsersHandler) CreateUserHandler(c *gin.Context) {
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

@@ -33,11 +33,23 @@ func (h *UsersHandler) GetUserByIDHandler(c *gin.Context) {
 
 	log.Println("[get user by id] running controller")
 	result, err := h.controller.GetUserByID(c.Request.Context(), &types.ReqGetUserByID{
+		AuthUserRole: role,
 		UserID: userID,
 		IncludeDeleted: c.Query("include_deleted") == "true",
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+		
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

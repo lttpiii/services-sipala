@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"services-sipala/services/authentication/types"
 	"time"
@@ -19,7 +20,7 @@ func (c *controller) RefreshToken(ctx context.Context, req *types.ReqRefreshToke
 		return nil, fmt.Errorf("unauthorized: invalid token type %v", claim.Type)
 	}
 
-	tx, err := db.Begin()
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return nil, err
 	}

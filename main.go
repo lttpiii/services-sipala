@@ -5,6 +5,7 @@ import (
 	"log"
 	"services-sipala/config"
 	"services-sipala/services/authentication"
+	"services-sipala/services/users"
 	"services-sipala/utilities"
 
 	"github.com/gin-gonic/gin"
@@ -43,6 +44,7 @@ func main() {
 
 	// init services
 	authentication.New(api, cfg, utils)
+	users.New(api, cfg, utils)
 	// borrow.New(api, cfg, utils)
 	// borrowapproval.New(api, cfg, utils)
 	// categories.New(api, cfg, utils)
@@ -51,7 +53,6 @@ func main() {
 	// reporting.New(api, cfg, utils)
 	// returns.New(api, cfg, utils)
 	// tools.New(api, cfg, utils)
-	// users.New(api, cfg, utils)
 
 	// running server
 	log.Printf("server running on port %s", cfg.PORT)
