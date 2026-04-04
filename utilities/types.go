@@ -19,3 +19,12 @@ var (
 	ErrTokenInvalid   = errors.New("token invalid")
 	ErrTokenMalformed = errors.New("token malformed")
 )
+
+type (
+	HTTPError struct {
+		Status  int
+		Message string
+		Code    int
+		Error   string
+	}
+)
