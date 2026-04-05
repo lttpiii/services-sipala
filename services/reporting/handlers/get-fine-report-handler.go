@@ -3,19 +3,27 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"services-sipala/services/tools/types"
+	"services-sipala/services/reporting/types"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (h *ToolsHandler) ListToolsHandler(c *gin.Context) {
-	log.Printf("[list-tools] hit service list tools with query %v\n", c.Request.URL.Query())
+func (h *ReportingHandler) GetFineReportHandler(c *gin.Context) {
+	log.Printf("[get-fine-report] hit service get fine report with query %v\n", c.Request.URL.Query())
 
-	// Auth Bearer (any role), tidak perlu cek role spesifik
+	role := c.GetString("role")
+	if role != "admin" && role != "staff" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "invalid role",
+			"code":    http.StatusUnauthorized,
+			"error":   "required role admin or staff",
+		})
+		return
+	}
 
-	var parsedQuery types.DTOListTools
+	var parsedQuery types.DTOGetFineReport
 	if err := c.ShouldBindQuery(&parsedQuery); err != nil {
-		log.Printf("[list-tools] failed to unmarshal query: %v", err)
+		log.Printf("[get-fine-report] failed to bind query: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "invalid request query",
 			"code":    http.StatusBadRequest,
@@ -24,17 +32,14 @@ func (h *ToolsHandler) ListToolsHandler(c *gin.Context) {
 		return
 	}
 
-	log.Println("[list-tools] running controller")
-	result, err := h.controller.ListTools(c.Request.Context(), &types.ReqListTools{
-		Page:          parsedQuery.Page,
-		Limit:         parsedQuery.Limit,
-		Search:        parsedQuery.Search,
-		CategoryID:    parsedQuery.CategoryID,
-		AvailableOnly: parsedQuery.AvailableOnly,
+	log.Println("[get-fine-report] running controller")
+	result, err := h.controller.GetFineReport(c.Request.Context(), &types.ReqGetFineReport{
+		StartDate: parsedQuery.StartDate,
+		EndDate:   parsedQuery.EndDate,
 	})
 
 	if err != nil {
-		log.Printf("[list-tools] failed on controller process: %v", err)
+		log.Printf("[get-fine-report] failed on controller process: %v", err)
 		if err != nil {
 			msg, code, errMsg := h.utilities.ParseError(err)
 			c.JSON(code, gin.H{
@@ -62,10 +67,10 @@ func (h *ToolsHandler) ListToolsHandler(c *gin.Context) {
 		return
 	}
 
-	log.Printf("[list-tools] list tools success")
+	log.Printf("[get-fine-report] get fine report success")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
 		"code":    http.StatusOK,
-		"result":  result,
+		"result":  result, // Berupa types.ReportType
 	})
 }
