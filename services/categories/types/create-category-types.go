@@ -8,8 +8,9 @@ type (
 
 type (
 	ReqCreateCategory struct {
-		Name string
+		AuthUserID string
+		Name       string
 	}
 
-	ResCreateCategory CategoryType
+	ResCreateCategory struct{}
 )

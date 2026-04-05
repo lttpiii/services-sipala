@@ -21,6 +21,8 @@ func (h *CategoriesHandler) DeleteCategoryHandler(c *gin.Context) {
 		return
 	}
 
+	authUserID := c.GetString("user_id")
+
 	categoryID  := c.Param("id")
 	if categoryID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -33,10 +35,22 @@ func (h *CategoriesHandler) DeleteCategoryHandler(c *gin.Context) {
 
 	log.Println("[delete category] running controller")
 	result, err := h.controller.DeleteCategory(c.Request.Context(), &types.ReqDeleteCategory{
+		AuthUserID: authUserID,
 		CategoryID: categoryID,
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

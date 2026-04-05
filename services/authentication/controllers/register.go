@@ -13,8 +13,8 @@ import (
 func (c *controller) Register(ctx context.Context, req *types.ReqRegister) (res *types.ResRegister, err error) {
 	db := c.cfg.MysqlClient
 
-	if strings.Contains(req.Name, " ") {
-		return nil, fmt.Errorf("invalid request: format name not valid")
+	if strings.Contains(req.Password, " ") {
+		return nil, fmt.Errorf("invalid request: invalid password format")
 	}
 
 	hash, err := c.utilities.HashString(req.Password)
