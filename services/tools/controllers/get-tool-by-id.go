@@ -33,7 +33,7 @@ func (c *controller) GetToolByID(ctx context.Context, req *types.ReqGetToolByID)
 		from tools t
 		join categories c on c.id = t.category_id
 		left join borrow_transaction_items bti on bti.tool_id = t.id
-		left join borrow_transactions bt on bct.id = bti.borrow_transaction_id and bt.status <> 'returned'
+		left join borrow_transactions bt on bt.id = bti.borrow_transaction_id where ((bt.status <> 'returned' AND bt.status <> 'rejected')OR bt.id IS NULL)
 		where t.id = ? and t.deleted_at is null
 		group by
 			t.id, t.name,

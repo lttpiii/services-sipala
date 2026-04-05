@@ -49,12 +49,14 @@ func (c *controller) GetListTools(ctx context.Context, req *types.ReqGetListTool
 	if err := db.QueryRowContext(
 		ctx,
 		fmt.Sprintf(`
-		select count(*)
+		select count(distinct t.id)
 		from tools t
 		join categories c on c.id = t.category_id
 		left join borrow_transaction_items bti on bti.tool_id = t.id
-		left join borrow_transactions bt on bt.id = bti.borrow_transaction_id and bt.status <> 'returned'
-		 %s`, whereClause),
+		left join borrow_transactions bt 
+		on bt.id = bti.borrow_transaction_id 
+			and bt.status NOT IN ('returned', 'rejected')
+		%s`, whereClause),
 		countArgs...
 	).Scan(&totalRecords); err != nil {
 		return nil, err
@@ -78,7 +80,9 @@ func (c *controller) GetListTools(ctx context.Context, req *types.ReqGetListTool
 	from tools t
 	join categories c on c.id = t.category_id
 	left join borrow_transaction_items bti on bti.tool_id = t.id
-	left join borrow_transactions bt on bt.id = bti.borrow_transaction_id and bt.status <> 'returned'
+	left join borrow_transactions bt 
+		on bt.id = bti.borrow_transaction_id 
+		and bt.status NOT IN ('returned', 'rejected')
 	%s
 	group by
 		t.id, t.name,

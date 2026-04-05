@@ -3,15 +3,25 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"services-sipala/services/borrow/types"
+	"services-sipala/services/returns/types"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (h *BorrowHandler) GetListBorrowsHandler(c *gin.Context) {
-	log.Printf("[get list borrows] hit sarvice get list borrows with request %v", c.Request)
+func (h *ReturnHandler) GetListReturnHandler(c *gin.Context) {
+	log.Printf("[get list returns] hit sarvice get list returns with request %v", c.Request)
+
+	role := c.GetString("role")
+	if role != "admin" && role != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "invalid role",
+			"code":    http.StatusForbidden,
+			"error":   "required role at least staff",
+		})
+		return
+	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
@@ -50,15 +60,15 @@ func (h *BorrowHandler) GetListBorrowsHandler(c *gin.Context) {
 		endDate = &parsed
 	}
 
-	log.Println("[get list borrows] running controller")
-	result, err := h.controller.GetListBorrows(c.Request.Context(), &types.ReqGetListBorrows{
+	log.Println("[get list returns] running controller")
+	result, err := h.controller.GetListReturns(c.Request.Context(), &types.ReqGetListReturns{
 		Page: page,
 		Limit: limit,
-		Status: c.Query("status"),
-		BorrowerID: c.Param("borrow_id"),
+		Search: c.Query("search"),
+		BorrowerID: c.Query("borrower_id"),
 		StartDate: startDate,
 		EndDate: endDate,
-		Search: c.Query("search"),
+		HasFine: c.GetString("has_fine") == "true",
 	})
 
 	if err != nil {
@@ -82,9 +92,9 @@ func (h *BorrowHandler) GetListBorrowsHandler(c *gin.Context) {
 		return
 	}
 
-	log.Println("[get list borrows] service get list borrows success")
+	log.Println("[get list returns] service get list returns success")
 	c.JSON(http.StatusOK, gin.H{
-		"message": "get list borrows successful",
+		"message": "get list returns successful",
 		"code": http.StatusOK,
 		"result": result,
 	})

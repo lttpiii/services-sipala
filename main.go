@@ -5,6 +5,8 @@ import (
 	"log"
 	"services-sipala/config"
 	"services-sipala/services/authentication"
+	"services-sipala/services/borrow"
+	borrowapproval "services-sipala/services/borrow-approval"
 	"services-sipala/services/categories"
 	"services-sipala/services/logs"
 	"services-sipala/services/tools"

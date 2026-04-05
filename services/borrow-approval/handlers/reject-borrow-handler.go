@@ -11,6 +11,18 @@ import (
 func (h *BorrowApprovalHandler) RejectBorrowHandler(c *gin.Context) {
 	log.Printf("[reject borrow] hit service reject borrow with request %v", c.Request)
 
+	role := c.GetString("role")
+	if role != "admin" && role != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "invalid role",
+			"code": http.StatusForbidden,
+			"error": "required role atleast staff",
+		})
+		return
+	}
+
+	authUserID := c.GetString("user_id")
+
 	borrowID := c.Param("borrow_id")
 	if borrowID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -34,11 +46,23 @@ func (h *BorrowApprovalHandler) RejectBorrowHandler(c *gin.Context) {
 	log.Printf("[reject borrow] processing borrow_id=%s", borrowID)
 
 	res, err := h.controller.RejectBorrow(c.Request.Context(), &types.ReqRejectBorrow{
+		AuthUserID: authUserID,
 		BorrowID: borrowID,
 		Reason:   dto.Reason,
 	})
 	
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+		
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,
