@@ -50,7 +50,7 @@ func (c *controller) GetListCategories(ctx context.Context, req *types.ReqGetLis
 		c.id,
 		c.name,
 
-		count(t.id) as total_tools
+		coalesce(count(t.id)) as total_tools
 	from categories c
 	left join tools t on t.category_id = c.id
 	%s

@@ -12,5 +12,11 @@ func New(
 	h *handlers.ToolsHandler,
 	u utilities.IUtility,
 ) {
-	g := r.Group("/tools")
+	g := r.Group("/tools", u.AuthMiddleware())
+
+	g.POST("/v1/tools", h.CreateToolHandler)
+	g.PUT("/v1/tools/:id", h.UpdateToolHandler)
+	g.DELETE("/v1/tools/:id", h.DeleteToolHandler)
+	g.GET("/v1/tools/:id", h.GetToolByIDHandler)
+	g.GET("/v1/tools", h.GetListToolsHandler)
 }
