@@ -11,6 +11,9 @@ import (
 func (h *BorrowHandler) RemoveBorrowItemHandler(c *gin.Context) {
 	log.Printf("[remove borrow item] hit sarvice remove borrow item with request %v", c.Request)
 
+	authUserID := c.GetString("user_id")
+	authUserRole := c.GetString("role")
+
 	borrowID  := c.Param("borrow_id")
 	if borrowID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -33,11 +36,24 @@ func (h *BorrowHandler) RemoveBorrowItemHandler(c *gin.Context) {
 
 	log.Println("[remove borrow item] running controller")
 	result, err := h.controller.RemoveBorrowItem(c.Request.Context(), &types.ReqRemoveBorrowItem{
+		AuthUserID: authUserID,
+		AuthUserRole: authUserRole,
 		BorrowID: borrowID,
 		ItemID: itemID,
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

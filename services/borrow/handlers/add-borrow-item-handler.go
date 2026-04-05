@@ -11,6 +11,9 @@ import (
 func (h *BorrowHandler) AddBorrowItemHandler(c *gin.Context) {
 	log.Printf("[add borrow item] hit sarvice add borrow item with request %v", c.Request)
 
+	authUserID := c.GetString("user_id")
+	authUserRole := c.GetString("role")
+
 	var parsedBody types.DTOAddBorrowItem
 	if err := c.ShouldBindJSON(&parsedBody); err != nil {
 		log.Printf("[add borrow item] failed to unmarshal: %v", err)
@@ -34,12 +37,25 @@ func (h *BorrowHandler) AddBorrowItemHandler(c *gin.Context) {
 
 	log.Println("[add borrow item] running controller")
 	result, err := h.controller.AddBorrowItem(c.Request.Context(), &types.ReqAddBorrowItem{
+		AuthUserRole: authUserRole,
+		AuthUserID: authUserID,
 		BorrowID: borrowID,
 		ToolId: parsedBody.ToolId,
 		Quantity: parsedBody.Quantity,
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

@@ -16,7 +16,7 @@ func New(
 
 	g.POST("/v1/borrows", h.CreateBorrowHandler)
 	g.POST("/v1/borrows/:borrow_id/items", h.AddBorrowItemHandler)
-	g.DELETE("/v1/borrows/:borrow_id/items/item_id", h.RemoveBorrowItemHandler)
+	g.DELETE("/v1/borrows/:borrow_id/items/:item_id", h.RemoveBorrowItemHandler)
 	g.POST("/v1/borrows/:borrow_id/submit", h.SubmitBorrowHandler)
 	g.GET("/v1/borrows/:id", h.GetBorrowByIDHandler)
 	g.GET("/v1/borrows", h.GetListBorrowsHandler)

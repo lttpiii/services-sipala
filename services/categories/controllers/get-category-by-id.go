@@ -19,7 +19,7 @@ func (c *controller) GetCategoryByID(ctx context.Context, req *types.ReqGetCateg
 			c.created_at,
 			c.updated_at,
 
-			count(t.id) as total_tools
+			coalesce(count(t.id)) as total_tools
 		from categories c
 		left join tools t on t.category_id = c.id
 		where c.id = ?
