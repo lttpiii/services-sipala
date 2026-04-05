@@ -11,6 +11,16 @@ import (
 func (h *ReturnHandler) GetReturnByIDHandler(c *gin.Context) {
 	log.Printf("[get return by id] hit sarvice get return by id with request %v", c.Request)
 
+	role := c.GetString("role")
+	if role != "admin" && role != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "invalid role",
+			"code":    http.StatusForbidden,
+			"error":   "required role at least staff",
+		})
+		return
+	}
+
 	returnID  := c.Param("id")
 	if returnID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -27,6 +37,17 @@ func (h *ReturnHandler) GetReturnByIDHandler(c *gin.Context) {
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,
