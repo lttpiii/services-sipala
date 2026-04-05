@@ -4,6 +4,8 @@ import "time"
 
 type (
 	ReqGetBorrowByID struct {
+		AuthUserID   string
+		AuthUserRole string
 		BorrowID string
 	}
 
