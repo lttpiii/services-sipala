@@ -90,7 +90,7 @@ func (c *controller) GetOverdueBorrows(ctx context.Context, req *types.ReqGetOve
 	}
 	defer rows.Close()
 
-	var data []types.OverdueBorrowType
+	data := make([]types.OverdueBorrowType, 0)
 
 	for rows.Next() {
 		var item types.OverdueBorrowType
@@ -132,7 +132,7 @@ func (c *controller) GetOverdueBorrows(ctx context.Context, req *types.ReqGetOve
 			return nil, fmt.Errorf("failed query overdue borrow items: %w", err)
 		}
 
-		var items []types.ItemsType
+		items := make([]types.ItemsType, 0)
 		totalItems := 0
 
 		for itemRows.Next() {

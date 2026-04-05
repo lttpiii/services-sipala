@@ -97,8 +97,8 @@ func (c *controller) GetActiveBorrows(ctx context.Context, req *types.ReqGetActi
 	}
 	defer rows.Close()
 
-	var data []types.BorrowType
-	var borrowIDs []string
+	data := make([]types.BorrowType, 0)
+borrowIDs := make([]string, 0)
 	now := time.Now()
 
 	for rows.Next() {
