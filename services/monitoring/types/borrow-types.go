@@ -10,9 +10,9 @@ type (
 		BorrowDate time.Time `json:"borrow_date"`
 		DueDate time.Time `json:"due_date"`
 		DaysRemaining int`json:"days_remaining"`
-		IsOverdue *bool `json:"is_overdue,omitempty"`
+		IsOverdue bool `json:"is_overdue"`
 		TotalItems int `json:"total_items"`
-		Items []ItemsType
+		Items []ItemsType `json:"items"`
 	}
 )
 

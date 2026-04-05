@@ -12,6 +12,15 @@ import (
 
 func (h *MonitoringHandler) GetOverdueBorrowsHandler(c *gin.Context) {
 	log.Printf("[get overdue borrows] hit sarvice get overdue borrows with request %v", c.Request)
+	role := c.GetString("role")
+	if role != "admin" && role != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "invalid role",
+			"code": http.StatusForbidden,
+			"error": "required role atleast staff",
+		})
+		return
+	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
