@@ -39,7 +39,7 @@ func (c *controller) CreateReturns(ctx context.Context, req *types.ReqCreateRetu
 			bt.due_date,
 			bt.status
 		FROM borrow_transactions bt
-		JOIN users u ON u.id = bt.user_id
+		JOIN users u ON u.id = bt.borrower_id
 		WHERE bt.id = ?
 		FOR UPDATE
 	`, req.BorrowTransactionID).Scan(
