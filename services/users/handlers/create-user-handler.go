@@ -27,26 +27,26 @@ func (h *UsersHandler) CreateUserHandler(c *gin.Context) {
 		log.Printf("[create user] failed to unmarshal: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "invalid request body",
-			"code": http.StatusBadRequest,
-			"error": err.Error(),
+			"code":    http.StatusBadRequest,
+			"error":   err.Error(),
 		})
 		return
 	}
 
 	log.Println("[create user] running controller")
 	result, err := h.controller.CreateUser(c.Request.Context(), &types.ReqCreateUser{
-		Name: parsedBody.Name,
-		Email: parsedBody.Email,
+		Name:     parsedBody.Name,
+		Email:    parsedBody.Email,
 		Password: parsedBody.Password,
-		Role: parsedBody.Role,
+		Role:     parsedBody.Role,
 	})
 
 	if err != nil {
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,
-			"code": code,
-			"error": errMsg,
+			"code":    code,
+			"error":   errMsg,
 		})
 		return
 	}
@@ -54,7 +54,7 @@ func (h *UsersHandler) CreateUserHandler(c *gin.Context) {
 	log.Println("[create user] service create user success")
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "create user successful",
-		"code": http.StatusCreated,
-		"result": result,
+		"code":    http.StatusCreated,
+		"result":  result,
 	})
 }
