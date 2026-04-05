@@ -12,14 +12,7 @@ func (h *UsersHandler) UpdateUserHandler(c *gin.Context) {
 	log.Printf("[update user] hit sarvice update user with request %v", c.Request)
 
 	role := c.GetString("role")
-	if role != "admin" && role != "staff" {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "invalid role",
-			"code": http.StatusForbidden,
-			"error": "required role atleast staff",
-		})
-		return
-	}
+	userIDToken := c.GetString("user_id")
 
 	var parsedBody types.DTOUpdateUser
 	if err := c.ShouldBindJSON(&parsedBody); err != nil {
@@ -44,6 +37,8 @@ func (h *UsersHandler) UpdateUserHandler(c *gin.Context) {
 
 	log.Println("[update user] running controller")
 	result, err := h.controller.UpdateUser(c.Request.Context(), &types.ReqUpdateUser{
+		UserIDOnToken: userIDToken,
+		UserRole: role,
 		UserID: userID,
 		Name: parsedBody.Name,
 		Email: parsedBody.Email,
@@ -51,6 +46,17 @@ func (h *UsersHandler) UpdateUserHandler(c *gin.Context) {
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

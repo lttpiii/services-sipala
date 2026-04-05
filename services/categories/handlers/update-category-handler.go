@@ -21,6 +21,8 @@ func (h *CategoriesHandler) UpdateCategoryHandler(c *gin.Context) {
 		return
 	}
 
+	authUserID := c.GetString("user_id")
+
 	var parsedBody types.DTOUpdateCategory
 	if err := c.ShouldBindJSON(&parsedBody); err != nil {
 		log.Printf("[update category] failed to unmarshal: %v", err)
@@ -44,11 +46,23 @@ func (h *CategoriesHandler) UpdateCategoryHandler(c *gin.Context) {
 
 	log.Println("[update category] running controller")
 	result, err := h.controller.UpdateCategory(c.Request.Context(), &types.ReqUpdateCategory{
+		AuthUserID: authUserID,
 		CategoryID: categoryID,
 		Name: parsedBody.Name,
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

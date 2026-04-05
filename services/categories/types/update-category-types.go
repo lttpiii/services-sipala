@@ -8,9 +8,10 @@ type (
 
 type (
 	ReqUpdateCategory struct {
+		AuthUserID string
 		CategoryID string
 		Name       string
 	}
 
-	ResUpdateCategory CategoryType
+	ResUpdateCategory struct{}
 )

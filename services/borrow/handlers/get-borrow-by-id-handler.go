@@ -11,7 +11,10 @@ import (
 func (h *BorrowHandler) GetBorrowByIDHandler(c *gin.Context) {
 	log.Printf("[get borrow by id] hit sarvice get borrow by id with request %v", c.Request)
 
-	borrowID  := c.Param("borrow_id")
+	authUserID := c.GetString("user_id")
+	authUserRole := c.GetString("role")
+
+	borrowID  := c.Param("id")
 	if borrowID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "missing id borrow",
@@ -21,22 +24,25 @@ func (h *BorrowHandler) GetBorrowByIDHandler(c *gin.Context) {
 		return
 	}
 
-	itemID  := c.Param("item_id")
-	if itemID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "missing id item",
-			"code": http.StatusBadRequest,
-			"error": "required id item",
-		})
-		return
-	}
-
 	log.Println("[get borrow by id] running controller")
 	result, err := h.controller.GetBorrowByID(c.Request.Context(), &types.ReqGetBorrowByID{
 		BorrowID: borrowID,
+		AuthUserID: authUserID,
+		AuthUserRole: authUserRole,
 	})
 
 	if err != nil {
+		log.Printf("failed on controller process: %v", err)
+
+		if mysqlError := h.utilities.ParseMySQLError(err); mysqlError != nil {
+			c.JSON(mysqlError.Status, gin.H{
+				"message": mysqlError.Message,
+				"code":    mysqlError.Code,
+				"error":   mysqlError.Error,
+			})
+			return
+		}
+
 		msg, code, errMsg := h.utilities.ParseError(err)
 		c.JSON(code, gin.H{
 			"message": msg,

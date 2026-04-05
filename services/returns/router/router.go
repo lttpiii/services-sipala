@@ -12,5 +12,9 @@ func New(
 	h *handlers.ReturnHandler,
 	u utilities.IUtility,
 ) {
-	g := r.Group("/returns")
+	g := r.Group("/returns", u.AuthMiddleware())
+	 g.POST("/v1/returns", h.CreateReturnsHandler)
+	 g.POST("/v1/returns/calculate-fine", h.CalculateFineHandler)
+	 g.GET("/v1/returns/:id", h.GetReturnByIDHandler)
+	g.GET("/v1/returns", h.GetListReturnHandler)
 }
