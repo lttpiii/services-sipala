@@ -6,6 +6,7 @@ import (
 	"services-sipala/config"
 	"services-sipala/services/authentication"
 	"services-sipala/services/categories"
+	"services-sipala/services/logs"
 	"services-sipala/services/tools"
 	"services-sipala/services/users"
 	"services-sipala/utilities"
@@ -52,7 +53,7 @@ func main() {
 	// borrow.New(api, cfg, utils)
 	// borrowapproval.New(api, cfg, utils)
 	// returns.New(api, cfg, utils)
-	// logs.New(api, cfg, utils)
+	 logs.New(api, cfg, utils)
 	// monitoring.New(api, cfg, utils)
 	// reporting.New(api, cfg, utils)
 

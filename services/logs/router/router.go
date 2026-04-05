@@ -12,5 +12,7 @@ func New(
 	h *handlers.LogsHandler,
 	u utilities.IUtility,
 ) {
-	g := r.Group("/logs")
+	g := r.Group("/logs",u.AuthMiddleware())
+	
+	g.GET("/v1/logs", h.GetLogsHandler)
 }
