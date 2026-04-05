@@ -57,7 +57,7 @@ func main() {
 	// returns.New(api, cfg, utils)
 	 logs.New(api, cfg, utils)
 	// monitoring.New(api, cfg, utils)
-	// reporting.New(api, cfg, utils)
+	 reporting.New(api, cfg, utils)
 
 	// running server
 	log.Printf("server running on port %s", cfg.PORT)

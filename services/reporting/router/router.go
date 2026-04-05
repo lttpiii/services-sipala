@@ -12,5 +12,9 @@ func New(
 	h *handlers.ReportingHandler,
 	u utilities.IUtility,
 ) {
-	g := r.Group("/reports")
+	g := r.Group("/reports", u.AuthMiddleware())
+
+	 g.GET("/v1/borrows", h.GetBorrowReportHandler)
+	 g.GET("/v1/returns", h.GetReturnReportHandler)
+	 g.GET("/v1/fines", h.GetFineReportHandler)
 }
