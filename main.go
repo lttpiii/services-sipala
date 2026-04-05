@@ -7,6 +7,7 @@ import (
 	"services-sipala/services/authentication"
 	"services-sipala/services/borrow"
 	"services-sipala/services/categories"
+	"services-sipala/services/reporting"
 	"services-sipala/services/tools"
 	"services-sipala/services/users"
 	"services-sipala/utilities"
@@ -55,7 +56,7 @@ func main() {
 	// returns.New(api, cfg, utils)
 	// logs.New(api, cfg, utils)
 	// monitoring.New(api, cfg, utils)
-	// reporting.New(api, cfg, utils)
+	 reporting.New(api, cfg, utils)
 
 	// running server
 	log.Printf("server running on port %s", cfg.PORT)
